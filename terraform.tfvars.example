@@ -1,0 +1,96 @@
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Lambda Configuration
+lambda_function_name = "slack-rag-chatbot"
+
+# API Gateway Configuration
+api_gateway_name = "slack-rag-api"
+
+# Bedrock Agent Configuration
+bedrock_agent_name = "advanced-slack-assistant"
+bedrock_agent_description = "Advanced context-aware AI assistant for Slack with RAG capabilities"
+bedrock_agent_instruction = "You are an advanced AI assistant with access to conversation history and knowledge base. Provide accurate, contextual responses while maintaining conversation continuity. Be helpful, concise, and professional."
+bedrock_foundation_model = "anthropic.claude-3-haiku-20240307-v1:0"
+
+# Knowledge Base Configuration
+enable_knowledge_base = true
+s3_bucket_name = "slack-chatbot-knowledge-base-unique-12345"
+create_s3_bucket = true
+
+# Model Parameters
+temperature = 0.1
+top_p = 0.9
+max_tokens = 2048
+
+# Slack Configuration (stored in AWS Secrets Manager)
+slack_signing_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:slack-signing-secret-abc123"
+slack_bot_token_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:slack-bot-token-def456"
+slack_bot_user_id = "U01234567890"  # Your bot's user ID from Slack
+
+# Storage Configuration
+dynamodb_table_name = "slack-chatbot-context"
+opensearch_domain_name = "slack-chatbot-vectors"
+opensearch_instance_type = "t3.small.search"
+opensearch_instance_count = 1
+
+# Guardrails Configuration
+enable_guardrails = true
+guardrail_name = "slack-chatbot-guardrail"
+guardrail_description = "Content filtering and safety guardrails for Slack chatbot"
+blocked_input_messaging = "I can't process that request as it violates our content policy."
+blocked_outputs_messaging = "I can't provide that information as it goes against our guidelines."
+create_guardrail_version = true
+guardrail_version_description = "Initial safety guardrails for production"
+
+# Content Policy Configuration
+content_policy_config = {
+  filters_config = [
+    {
+      input_strength  = "MEDIUM"
+      output_strength = "MEDIUM" 
+      type           = "HATE"
+    },
+    {
+      input_strength  = "HIGH"
+      output_strength = "HIGH"
+      type           = "VIOLENCE"
+    },
+    {
+      input_strength  = "MEDIUM"
+      output_strength = "MEDIUM"
+      type           = "SEXUAL"
+    },
+    {
+      input_strength  = "MEDIUM"
+      output_strength = "MEDIUM"
+      type           = "MISCONDUCT"
+    }
+  ]
+}
+
+# Sensitive Information Policy
+sensitive_information_policy_config = {
+  pii_entities_config = [
+    {
+      action = "BLOCK"
+      type   = "EMAIL"
+    },
+    {
+      action = "BLOCK"
+      type   = "PHONE"
+    },
+    {
+      action = "ANONYMIZE"
+      type   = "NAME"
+    }
+  ]
+  regexes_config = []
+}
+
+# Tags
+tags = {
+  Project     = "slack-rag-chatbot"
+  Environment = "production"
+  Owner       = "devops-team"
+}

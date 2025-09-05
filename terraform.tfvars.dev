@@ -1,0 +1,194 @@
+# Basic Configuration
+aws_region = "us-east-1"
+lambda_function_name = "slack-bedrock-integration"
+api_gateway_name = "slack-bedrock-api"
+
+# Bedrock Agent Configuration
+bedrock_agent_name = "slack-assistant"
+bedrock_agent_description = "AI assistant for Slack integration with enhanced safety guardrails"
+bedrock_agent_instruction = "You are a helpful AI assistant that responds to questions from Slack users. Be concise, friendly, and professional in your responses. Follow all safety guidelines and content policies."
+bedrock_foundation_model = "anthropic.claude-3-haiku-20240307-v1:0"
+
+# Knowledge Base Configuration
+enable_knowledge_base = false
+s3_bucket_name = null
+create_s3_bucket = false
+
+# Model Configuration
+temperature = 0.7
+top_p = 0.9
+max_tokens = 2048
+enable_prompt_override = false
+
+slack_signing_secret_arn = "arn:aws:secretsmanager:us-east-1:435343606453:secret:signing_secret-vYMzsB"
+slack_bot_token_arn = "arn:aws:secretsmanager:us-east-1:435343606453:secret:slack_bot_token-vYMzsB"
+slack_bot_user_id = null  # Set to your bot's user ID (e.g., "U06D5B8AR8R") for better filtering
+
+enable_guardrails = true
+guardrail_name = "slack-bedrock-safety-guardrail"
+guardrail_description = "Comprehensive safety guardrail for Slack Bedrock integration with content filtering, PII protection, and topic restrictions"
+blocked_input_messaging = "I can't process that request as it violates our content policy. Please rephrase your question in a more appropriate way."
+blocked_outputs_messaging = "I apologize, but I can't provide that information as it goes against our content guidelines. How else can I help you today?"
+create_guardrail_version = true
+guardrail_version_description = "Enhanced guardrail v1.0 with comprehensive safety policies"
+
+content_policy_config = {
+  filters_config = [
+    {
+      type            = "HATE"
+      input_strength  = "HIGH"
+      output_strength = "MEDIUM"
+    },
+    {
+      type            = "SEXUAL"
+      input_strength  = "MEDIUM"  
+      output_strength = "HIGH"
+    },
+    {
+      type            = "VIOLENCE"
+      input_strength  = "HIGH"
+      output_strength = "HIGH"
+    },
+    {
+      type            = "MISCONDUCT"
+      input_strength  = "MEDIUM"
+      output_strength = "MEDIUM"
+    }
+  ]
+}
+
+contextual_grounding_policy_config = {
+  filters_config = [
+    {
+      type      = "GROUNDING"
+      threshold = 0.8
+    }
+  ]
+}
+
+sensitive_information_policy_config = {
+  pii_entities_config = [
+    {
+      type   = "EMAIL"
+      action = "REDACT"
+    },
+    {
+      type   = "PHONE"
+      action = "BLOCK"
+    },
+    {
+      type   = "SSN"
+      action = "REDACT"
+    },
+    {
+      type   = "CREDIT_CARD"
+      action = "BLOCK"
+    },
+    {
+      type   = "PASSPORT"
+      action = "REDACT"
+    },
+    {
+      type   = "USERNAME"
+      action = "ANONYMIZE"
+    }
+  ]
+  regexes_config = [
+    {
+      name        = "employee_id"
+      description = "Company internal employee ID pattern"
+      pattern     = "EMP-[0-9]{5}"
+      action      = "REDACT"
+    },
+    {
+      name        = "api_key"
+      description = "API key patterns"
+      pattern     = "(sk-|pk_)[A-Za-z0-9]{32,}"
+      action      = "BLOCK"
+    },
+    {
+      name        = "internal_project_code"
+      description = "Internal project codes"
+      pattern     = "PROJ-[A-Z]{3}-[0-9]{4}"
+      action      = "REDACT"
+    }
+  ]
+}
+
+topic_policy_config = {
+  topics_config = [
+    {
+      name       = "Politics"
+      type       = "DENY"
+      definition = "Conversations about political ideologies, parties, campaigns, or controversial political topics are not allowed."
+      examples   = [
+        "Who should I vote for?",
+        "What do you think about this political party?",
+        "Can you help me with campaign strategies?"
+      ]
+    },
+    {
+      name       = "Medical Advice"
+      type       = "DENY"
+      definition = "Avoid giving specific medical diagnoses, treatment recommendations, or health-related advice that could be harmful."
+      examples   = [
+        "Can you diagnose my symptoms?",
+        "What medicine should I take?",
+        "Should I stop taking my prescribed medication?"
+      ]
+    },
+    {
+      name       = "Financial Investment"
+      type       = "DENY"
+      definition = "Do not provide specific investment advice, stock recommendations, or financial planning guidance."
+      examples   = [
+        "Which stocks should I buy?",
+        "Should I invest in cryptocurrency?",
+        "Can you help me with tax evasion strategies?"
+      ]
+    },
+    {
+      name       = "Legal Advice"
+      type       = "DENY"  
+      definition = "Avoid providing specific legal advice or guidance that could constitute practicing law."
+      examples   = [
+        "How should I handle my divorce case?",
+        "What should I do if I'm arrested?",
+        "Can you help me write a contract?"
+      ]
+    }
+  ]
+}
+
+word_policy_config = {
+  managed_word_lists_config = [
+    {
+      type = "PROFANITY"
+    }
+  ]
+  words_config = [
+    {
+      text = "secretprojectX"
+    },
+    {
+      text = "internalcodename123"
+    },
+    {
+      text = "confidential-alpha"
+    },
+    {
+      text = "classified-beta"
+    }
+  ]
+}
+
+tags = {
+  Environment   = "dev"
+  Project       = "slack-bedrock-integration"
+  Owner         = "platform-team"
+  Purpose       = "customer-support"
+  Compliance    = "pii-protected"
+  Security      = "guardrails-enabled"
+  CostCenter    = "ai-platform"
+  DataClass     = "internal"
+}
